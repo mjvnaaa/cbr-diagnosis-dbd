@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cek Tingkat DBD — Case-Based Reasoning</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<main>
+<header>
+  <span class="tag">CBR</span>
+  <h1>Cek Tingkat DBD</h1>
+  <p>Pilih gejala yang dialami, sistem mencocokkan dengan kasus DBD yang sudah ada</p>
+</header>
+
+<ol class="steps" aria-label="Tahapan CBR">
+  <li id="st1"><b>1</b>Retrieve</li><li id="st2"><b>2</b>Reuse</li>
+  <li id="st3"><b>3</b>Revision</li><li id="st4"><b>4</b>Retain</li>
+</ol>
+
+<section class="card" aria-labelledby="h-g">
+  <div class="row"><h2 id="h-g">Pilih gejala</h2><span id="count" aria-live="polite" class="tag">0 dipilih</span></div>
+  <label for="q">Cari gejala</label>
+  <input id="q" type="search" placeholder="Contoh: demam, mimisan, G8">
+  <div id="chips" class="chips" role="group" aria-label="Daftar gejala"></div>
+  <p class="hint">Label “hasil lab” (Leukosit, Hematokrit, Trombosit): pilih hanya jika Anda sudah punya hasil lab dan nilainya abnormal.</p>
+  <div class="acts">
+    <button class="btn" id="go">Cek Tingkat DBD</button>
+    <button class="btn ghost" id="clear">Bersihkan pilihan</button>
+  </div>
+  <div id="vmsg" role="alert"></div>
+</section>
+
+<section class="card" id="res" hidden aria-live="polite"></section>
+
+<div class="msg wn" role="note"><b>Peringatan:</b> Ini alat bantu belajar, bukan diagnosis medis. Jika ada demam tinggi disertai perdarahan, nyeri perut hebat, lemas berat, atau kejang, segera ke fasilitas kesehatan.</div>
+
+<details id="doc">
+  <summary>Mode dokter (Revision &amp; Retain)</summary>
+  <div id="docbody">
+    <p>Jalankan “Cek Tingkat DBD” lebih dulu, lalu tinjau hasilnya di sini.</p>
+  </div>
+  <h2 class="sub">Basis kasus</h2>
+  <div id="storewarn"></div>
+  <div class="tw"><table id="cb"></table></div>
+  <div class="acts"><button class="btn ghost" id="reset">Reset ke bawaan</button></div>
+</details>
+
+<details>
+  <summary>Cara Kerja</summary>
+  <ol>
+    <li><b>Retrieve</b>: gejala terpilih diubah menjadi vektor 1/0 (14 posisi), lalu dibandingkan ke setiap kasus di basis kasus.</li>
+    <li><b>Reuse</b>: grade dari kasus dengan jarak terkecil dipakai sebagai solusi. Jika ada dua grade berjarak sama, hasilnya seri.</li>
+    <li><b>Revision</b>: dokter dapat menyetujui atau mengubah grade.</li>
+    <li><b>Retain</b>: kasus baru beserta grade hasil revisi disimpan ke basis kasus.</li>
+  </ol>
+  <p>Jarak Euclidean: <code>d = √Σ(xᵢ − yᵢ)²</code>. Pada data 1/0, d² sama dengan jumlah gejala yang berbeda. Similarity = <code>1/(1+d)</code>. SV Jaccard = sama / (baru + lama − sama).</p>
+  <p><b>Contoh:</b> gejala G1, G2, G8, G9, G12, G13, G14 (7 gejala) dibandingkan dengan DHF-II (G1, G8, G9, G12, G13, G14). Hanya G2 yang berbeda, sehingga d = √1 = 1,000 dan similarity = 1/(1+1) = 0,500. Gejala sama = 6, maka SV Jaccard = 6 / (7 + 6 − 6) = 0,857. DHF-I dan DHF-III berbeda 2 gejala (d = 1,414), DHF-IV berbeda 5 gejala (d = 2,236). Jarak terkecil ada pada DHF-II, jadi hasilnya Grade II.</p>
+  <p>Logika yang sama dijelaskan lengkap di <code>cbr_dbd.ipynb</code>.</p>
+  <p>Sumber basis kasus: Tabel 2-3, Jatmiko dkk. (2017). Keterangan tingkat keparahan mengikuti klasifikasi WHO, bukan dari artikel.</p>
+</details>
+</main>
+
+<script src="js/data.js"></script>
+<script src="js/state.js"></script>
+<script src="js/cbr.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>
