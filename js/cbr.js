@@ -1,20 +1,64 @@
-"use strict";
-/* Logika CBR: toVector, euclidean, jaccard, retrieve, reuse (replika cbr_dbd.ipynb) */
+// ===== PERHITUNGAN CBR (Cosine Similarity, logika dasar tanpa library) =====
 
-function toVector(ids){return SYMPTOMS.map(s=>ids.has(s.id)?1:0);}
-function diffCount(a,b){return a.reduce((n,x,i)=>n+(x!==b[i]?1:0),0);}
-function euclidean(a,b){return Math.sqrt(a.reduce((n,x,i)=>n+(x-b[i])**2,0));}
-function jaccard(a,b){const same=a.reduce((n,x,i)=>n+(x&&b[i]?1:0),0);const u=a.reduce((n,x)=>n+x,0)+b.reduce((n,x)=>n+x,0)-same;return u?same/u:0;}
-function retrieve(vec){
-  return allCases().map(c=>{
-    const d=euclidean(vec,c.vec);
-    return{c,same:vec.reduce((n,x,i)=>n+(x&&c.vec[i]?1:0),0),diff:diffCount(vec,c.vec),d,sim:1/(1+d),sv:jaccard(vec,c.vec)};
-  }).sort((a,b)=>a.diff-b.diff||GORDER.indexOf(a.c.grade)-GORDER.indexOf(b.c.grade));
+// Mengubah gejala terpilih (array kode) menjadi vektor kasus baru K1
+function buatKasusBaru(terpilih) {
+  let k1 = [];
+  for (let j = 0; j < GEJALA.length; j++) {
+    let ada = 0;
+    for (let t = 0; t < terpilih.length; t++) {
+      if (terpilih[t] === GEJALA[j].kode) { ada = 1; }
+    }
+    k1.push(ada);
+  }
+  return k1;
 }
-function reuse(rows,n){
-  const byGrade=GORDER.map(g=>rows.find(r=>r.c.grade===g)).filter(Boolean)
-    .sort((a,b)=>a.diff-b.diff||GORDER.indexOf(a.c.grade)-GORDER.indexOf(b.c.grade));
-  const ties=byGrade.filter(r=>r.diff===byGrade[0].diff);
-  const tie=ties.length>1;
-  return{byGrade,best:byGrade[0],tie,ties,vague:tie||n<=2,far:byGrade[0].d>2.5};
+
+// Menghitung similarity K1 terhadap seluruh kasus lama
+function hitungCBR(K1) {
+  let hasil = [];
+
+  for (let i = 0; i < KASUS_LAMA.length; i++) {
+    let dot = 0;
+    let kuadrat_k1 = 0;
+    let kuadrat_dhf = 0;
+
+    for (let j = 0; j < GEJALA.length; j++) {
+      dot = dot + K1[j] * KASUS_LAMA[i].vektor[j];
+      kuadrat_k1 = kuadrat_k1 + K1[j] * K1[j];
+      kuadrat_dhf = kuadrat_dhf + KASUS_LAMA[i].vektor[j] * KASUS_LAMA[i].vektor[j];
+    }
+
+    let panjang_k1 = Math.sqrt(kuadrat_k1);
+    let panjang_dhf = Math.sqrt(kuadrat_dhf);
+    let cosine = dot / (panjang_k1 * panjang_dhf);
+
+    hasil.push({
+      kode: KASUS_LAMA[i].kode,
+      grade: KASUS_LAMA[i].grade,
+      dot: dot,
+      kuadrat_k1: kuadrat_k1,
+      kuadrat_dhf: kuadrat_dhf,
+      panjang_k1: panjang_k1,
+      panjang_dhf: panjang_dhf,
+      cosine: cosine
+    });
+  }
+
+  // Mencari nilai tertinggi
+  let posisi = 0;
+  for (let i = 1; i < hasil.length; i++) {
+    if (hasil[i].cosine > hasil[posisi].cosine) { posisi = i; }
+  }
+
+  // Urutkan dari similarity tertinggi (bubble sort sederhana pada salinan)
+  let urut = hasil.slice();
+  for (let a = 0; a < urut.length - 1; a++) {
+    for (let b = 0; b < urut.length - 1 - a; b++) {
+      if (urut[b].cosine < urut[b + 1].cosine) {
+        let tmp = urut[b]; urut[b] = urut[b + 1]; urut[b + 1] = tmp;
+      }
+    }
+  }
+
+  return { hasil: hasil, urut: urut, terbaik: hasil[posisi] };
 }
