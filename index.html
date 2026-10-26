@@ -3,25 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Cek Grade Demam Berdarah</title>
+  <title>CekDBD - Cek Grade Demam Berdarah</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <div class="shell">
-    <aside class="rail">
-      <a class="logo" href="#/"><b>DBD</b><span>cek grade</span></a>
-      <ol class="steps">
-        <li data-s="1"><a href="#/identitas">Identitas</a></li>
-        <li data-s="2"><a href="#/gejala">Gejala</a></li>
-        <li data-s="3"><a href="#/hasil">Hasil</a></li>
-      </ol>
-      <nav class="foot">
-        <a href="#/">Beranda</a>
-        <a href="#/dataset">Dataset kasus</a>
+  <header class="nav">
+    <div class="nav-in">
+      <a class="brand" href="#/"><span id="brandIc"></span>CekDBD</a>
+      <nav class="links">
+        <a href="#/" data-n="0">Beranda</a>
+        <a href="#/identitas" data-n="1">Diagnosis</a>
+        <a href="#/dataset" data-n="2">Dataset</a>
       </nav>
-    </aside>
-    <main id="app"></main>
-  </div>
+    </div>
+  </header>
+  <main id="app"></main>
+  <footer class="foot">
+    <div class="wrap foot-in">
+      <b>CekDBD</b>
+      <p>Alat bantu belajar berbasis Case-Based Reasoning. Data: RSUD dr. Soeselo Slawi (Jatmiko dkk., 2017). Bukan pengganti pemeriksaan dokter.</p>
+    </div>
+  </footer>
   <script src="js/data.js"></script>
   <script src="js/cbr.js"></script>
   <script src="js/app.js"></script>
